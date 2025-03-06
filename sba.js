@@ -78,6 +78,27 @@ const LearnerSubmissions = [
 
 //My Code
 
+function dueYet(ag, ls) {
+  let dueAssignments = []; //initialize empty array of only assingments that are due
+  for (let entry of ag.assignments) {
+    //for every element in assignment group
+    let dueDate = new Date(entry.due_at);
+    let currentDate = Date.now();
+    if (dueDate < currentDate) {
+      //compare due date of assignment to current date
+      for (let submission of ls) {
+        if (submission.assignment_id == entry.id) {
+          dueAssignments.push(submission); //push the corresponding submission (by assignment_id) to dueAssignments array
+        }
+      }
+    }
+  }
+  return dueAssignments;
+}
+
+console.log(dueYet(AssignmentGroup, LearnerSubmissions));
+
+// invoke as getScore(dueYet(AssignmentGroup, LearnerSubmissions)) to only get due assignments
 function getScore(ls) {
   let scores = {}; //initialize scores as an empty object
   for (let entry of ls) {
@@ -88,12 +109,12 @@ function getScore(ls) {
   return scores; //return object with keys of learner_id and values of total scores
 }
 //todo: change getScore() to give average of scores
-// omit assignments that aren't due yet
+// omit assignments that aren't due yet -- done
 // deduct 10% of total points possible if assignment is late
 // add error if assignment group doesn't match course id
 // add error if points_possible = 0
 // put everything into getLearnerData()
 
-console.log(getScore(LearnerSubmissions));
+console.log(getScore(dueYet(AssignmentGroup, LearnerSubmissions)));
 
 // function getLearnerData(course, ag, submissions) {}
