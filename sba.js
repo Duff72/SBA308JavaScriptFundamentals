@@ -96,18 +96,50 @@ function dueYet(ag, ls) {
   return dueAssignments;
 }
 
-console.log(dueYet(AssignmentGroup, LearnerSubmissions));
+let submittedDueAssignments = dueYet(AssignmentGroup, LearnerSubmissions);
+
+// console.log(submittedDueAssignments);
+
+function isLate(ag, ls) {
+  for (let entry of ag.assignments) {
+    //for every element in assignment group
+    let dueDate = new Date(entry.due_at);
+    for (let submission of ls) {
+      if (submission.assignment_id === entry.id) {
+        let submissionDate = new Date(submission.submission.submitted_at);
+        if (submissionDate > dueDate) {
+          //compare due date of assignment to submission date
+          submission.isLate = true;
+          submission.latePenalty = 0.1 * entry.points_possible; //adds a latePenalty key equal to 10% of maximum points
+        } else {
+          submission.isLate = false;
+        }
+      }
+    }
+  }
+  return ls;
+}
+checkOnTime = isLate(AssignmentGroup, submittedDueAssignments);
+// console.log(checkOnTime);
 
 // invoke as getScore(dueYet(AssignmentGroup, LearnerSubmissions)) to only get due assignments
 function getScore(ls) {
   let scores = {}; //initialize scores as an empty object
   for (let entry of ls) {
     //for every element in the ls array,
-    scores[entry.learner_id] = 0; //create key of (value of) learner_id and initialize value of 0
-    scores[entry.learner_id] += entry.submission.score; //go through every entry for each learner_id and add submission.score to it
+    if (entry.isLate === false) {
+      scores[entry.learner_id] = 0; //create key of (value of) learner_id and initialize value of 0
+      scores[entry.learner_id] += entry.submission.score;
+    } //go through every entry for each learner_id and add submission.score to it
+    else {
+      scores[entry.learner_id] = 0;
+      scores[entry.learner_id] += entry.submission.score - entry.latePenalty;
+    }
   }
   return scores; //return object with keys of learner_id and values of total scores
 }
+
+console.log(getScore(checkOnTime));
 //todo: change getScore() to give average of scores
 // omit assignments that aren't due yet -- done
 // deduct 10% of total points possible if assignment is late
@@ -115,6 +147,6 @@ function getScore(ls) {
 // add error if points_possible = 0
 // put everything into getLearnerData()
 
-console.log(getScore(dueYet(AssignmentGroup, LearnerSubmissions)));
+// console.log(getScore(isLate(AssignmentGroup, LearnerSubmissions)));
 
 // function getLearnerData(course, ag, submissions) {}
