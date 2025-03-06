@@ -75,3 +75,25 @@ const LearnerSubmissions = [
     },
   },
 ];
+
+//My Code
+
+function getScore(ls) {
+  let scores = {}; //initialize scores as an empty object
+  for (let entry of ls) {
+    //for every element in the ls array,
+    scores[entry.learner_id] = 0; //create key of (value of) learner_id and initialize value of 0
+    scores[entry.learner_id] += entry.submission.score; //go through every entry for each learner_id and add submission.score to it
+  }
+  return scores; //return object with keys of learner_id and values of total scores
+}
+//todo: change getScore() to give average of scores
+// omit assignments that aren't due yet
+// deduct 10% of total points possible if assignment is late
+// add error if assignment group doesn't match course id
+// add error if points_possible = 0
+// put everything into getLearnerData()
+
+console.log(getScore(LearnerSubmissions));
+
+// function getLearnerData(course, ag, submissions) {}
