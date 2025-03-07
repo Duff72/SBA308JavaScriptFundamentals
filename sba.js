@@ -99,8 +99,6 @@ function dueYet(ag, ls) {
 
 let submittedDueAssignments = dueYet(AssignmentGroup, LearnerSubmissions);
 
-// console.log(submittedDueAssignments);
-
 function isLate(ag, ls) {
   for (let entry of ag.assignments) {
     //for every element in assignment group
@@ -112,57 +110,90 @@ function isLate(ag, ls) {
           //compare due date of assignment to submission date
           submit.isLate = true;
           submit.latePenalty = 0.1 * entry.points_possible; //adds a latePenalty key equal to 10% of maximum points
+          submit.maxScore = entry.points_possible;
         } else {
           submit.isLate = false;
+          submit.latePenalty = 0;
+          submit.maxScore = entry.points_possible;
         }
       }
     }
   }
   return ls;
 }
-checkOnTime = isLate(AssignmentGroup, submittedDueAssignments);
-// console.log(checkOnTime);
-
-// invoke as getTotalScore(checkOnTime) to only get due assignments and checked for lateness
-function getTotalScore(ls) {
-  let scores = {}; //initialize scores as an empty object
-  for (let submit of ls) {
-    //for every element in the ls array,
-    if (submit.isLate === true) {
-      scores[submit.learner_id] = 0; //create key of (value of) learner_id and initialize value of 0
-      scores[submit.learner_id] += submit.submission.score - submit.latePenalty; //deduct late penalty if late
-    } //go through every entry for each learner_id and add submission.score to it
-    else {
-      scores[submit.learner_id] = 0;
-      scores[submit.learner_id] += submit.submission.score;
-    }
-  }
-  return scores; //return object with keys of learner_id and values of total scores
-}
-console.log(checkOnTime);
-// console.log(getTotalScore(checkOnTime));
+let checkOnTime = isLate(AssignmentGroup, submittedDueAssignments);
 
 function getResult(array) {
-  let result = []
-  let learnerData = {
-    id: ,
-    avg: ,
-    1: ,
-    2:
+  let result = [];
+  let student = 0;
+  newArray = array.sort((a, b) => a.learner_id - b.learner_id);
+  //sort objects in array by learner id
+  for (let i = 0; i < newArray.length; i++) {
+    if (newArray[i].learner_id > student) {
+      //if this is a new student, create a new object in result array
+      result[i] = {
+        id: newArray[i].learner_id,
+        avg: null,
+        1: null,
+        2: null,
+        maxScore: newArray[i].maxScore,
+        total1: newArray[i].submission.score - newArray[i].latePenalty,
+        total2: null,
+      };
+      result[i][newArray[i].assignment_id] =
+        (newArray[i].submission.score - newArray[i].latePenalty) /
+        newArray[i].submission.maxPoints;
+      student = newArray[i].learner_id;
+    } else if ((newArray[i].learner_id = student)) {
+      // if same student, update result array
+      result[i] = null;
+      result[i - 1][newArray[i].assignment_id] =
+        (newArray[i].submission.score - newArray[i].latePenalty) /
+        newArray[i].submission.maxPoints;
+      result[i - 1].maxScore =
+        parseInt([newArray[i - 1].maxScore]) + parseInt([newArray[i].maxScore]);
+      result[i - 1].total2 =
+        newArray[i].submission.score - newArray[i].latePenalty;
+    } //[i-1] is a very inelegant way to do this but it's working. i'm sure this would cause problems with larger data sets
+  }
+  return result;
+}
+// console.log(getResult(checkOnTime));
+
+function refineResult(array) {
+  let filteredArray = array.filter((element) => element !== null);
+  let finalArray = [];
+  for (let i = 0; i < filteredArray.length; i++) {
+    filteredArray[i].avg =
+      (filteredArray[i].total1 + filteredArray[i].total2) /
+      filteredArray[i].maxScore;
+    finalArray[i] = {
+      id: filteredArray[i].id,
+      avg: filteredArray[i].avg,
+      1: filteredArray[i][1],
+      2: filteredArray[i][2],
+    };
   }
 
-  //plug array from checkOnTime into result, containing learnerData objects with specified keys
-  //do error handling within getLearnerData()
+  return finalArray;
 }
+let preResult = refineResult(getResult(checkOnTime));
 
-//todo: add getAverageScore -- do within getResult()
-// omit assignments that aren't due yet -- done
-// deduct 10% of total points possible if assignment is late -- done
+//todo:
+//do error handling within getLearnerData()
 // add error if assignment group doesn't match course id
 // add error if points_possible = 0
-// put everything into getLearnerData()
+// put everything into getLearnerData() -- done, just need error handling
 // update ReadMe explaining functionality
 // double check submission rubrick
 // chew bubblegum
 
-// function getLearnerData(course, ag, submissions) {}
+function getLearnerData(course, ag, submissions) {
+  let res1 = dueYet(ag, submissions);
+  let res2 = isLate(ag, res1);
+  let res3 = getResult(res2);
+  let result = refineResult(res3);
+  return result;
+}
+
+console.log(getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions));
