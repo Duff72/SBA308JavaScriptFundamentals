@@ -97,7 +97,7 @@ function dueYet(ag, ls) {
   return dueAssignments;
 }
 
-let submittedDueAssignments = dueYet(AssignmentGroup, LearnerSubmissions);
+// const submittedDueAssignments = dueYet(AssignmentGroup, LearnerSubmissions);
 
 function isLate(ag, ls) {
   for (let entry of ag.assignments) {
@@ -121,7 +121,7 @@ function isLate(ag, ls) {
   }
   return ls;
 }
-let checkOnTime = isLate(AssignmentGroup, submittedDueAssignments);
+// const checkOnTime = isLate(AssignmentGroup, submittedDueAssignments);
 
 function getResult(array) {
   let result = [];
@@ -158,7 +158,6 @@ function getResult(array) {
   }
   return result;
 }
-// console.log(getResult(checkOnTime));
 
 function refineResult(array) {
   let filteredArray = array.filter((element) => element !== null);
@@ -177,23 +176,23 @@ function refineResult(array) {
 
   return finalArray;
 }
-let preResult = refineResult(getResult(checkOnTime));
-
-//todo:
-//do error handling within getLearnerData()
-// add error if assignment group doesn't match course id
-// add error if points_possible = 0
-// put everything into getLearnerData() -- done, just need error handling
-// update ReadMe explaining functionality
-// double check submission rubrick
-// chew bubblegum
 
 function getLearnerData(course, ag, submissions) {
-  let res1 = dueYet(ag, submissions);
-  let res2 = isLate(ag, res1);
-  let res3 = getResult(res2);
-  let result = refineResult(res3);
-  return result;
+  try {
+    if (course.id === ag.course_id) {
+      let res1 = dueYet(ag, submissions);
+      let res2 = isLate(ag, res1);
+      let res3 = getResult(res2);
+      let result = refineResult(res3);
+      return result;
+    } else {
+      throw "Error - Assignments do not match course";
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-console.log(getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions));
+const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
+
+console.log(result);
