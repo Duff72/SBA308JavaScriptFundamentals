@@ -88,6 +88,7 @@ function dueYet(ag, ls) {
       //compare due date of assignment to current date
       for (let submit of ls) {
         if (submit.assignment_id == entry.id) {
+          submit.submission.maxPoints = entry.points_possible; // add maxPoints key to objects pushed to dueAssignments
           dueAssignments.push(submit); //push the corresponding submission (by assignment_id) to dueAssignments array
         }
       }
@@ -138,13 +139,30 @@ function getTotalScore(ls) {
   }
   return scores; //return object with keys of learner_id and values of total scores
 }
+console.log(checkOnTime);
+// console.log(getTotalScore(checkOnTime));
 
-console.log(getTotalScore(checkOnTime));
-//todo: add getAverageScore
+function getResult(array) {
+  let result = []
+  let learnerData = {
+    id: ,
+    avg: ,
+    1: ,
+    2:
+  }
+
+  //plug array from checkOnTime into result, containing learnerData objects with specified keys
+  //do error handling within getLearnerData()
+}
+
+//todo: add getAverageScore -- do within getResult()
 // omit assignments that aren't due yet -- done
 // deduct 10% of total points possible if assignment is late -- done
 // add error if assignment group doesn't match course id
 // add error if points_possible = 0
 // put everything into getLearnerData()
+// update ReadMe explaining functionality
+// double check submission rubrick
+// chew bubblegum
 
 // function getLearnerData(course, ag, submissions) {}
